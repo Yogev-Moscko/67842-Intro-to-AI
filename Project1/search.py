@@ -49,8 +49,10 @@ class SearchProblem:
         util.raiseNotDefined()
 
 
-def depth_first_search(problem):
+def depth_first_search(problem: SearchProblem):
     """
+    :param search.SearchProblem problem: The problem
+
     Search the deepest nodes in the search tree first.
 
     Your search algorithm needs to return a list of actions that reaches
@@ -63,8 +65,9 @@ def depth_first_search(problem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    stack = util.Stack()
+    stack.push(problem.get_start_state())
+
 
 
 def breadth_first_search(problem):
