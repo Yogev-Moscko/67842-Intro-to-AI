@@ -49,7 +49,7 @@ class SearchProblem:
         util.raiseNotDefined()
 
 
-def depth_first_search(problem: SearchProblem):
+def depth_first_search(problem):
     """
     :param search.SearchProblem problem: The problem
 
@@ -65,25 +65,64 @@ def depth_first_search(problem: SearchProblem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    stack = util.Stack()
-    stack.push(problem.get_start_state())
 
+    # initialize the stack with the start state
+    start = problem.get_start_state()
+    stack = util.Stack()
+    stack.push((start, []))
+    visited = set()
+
+    while not stack.isEmpty():
+        state, actions = stack.pop()
+        if problem.is_goal_state(state):  # check if the state is the goal state
+            return actions
+        if state not in visited:
+            visited.add(state)
+            for successor, action, _ in problem.get_successors(state):  # run of the successors of the state
+                stack.push((successor, actions + [action]))
 
 
 def breadth_first_search(problem):
     """
     Search the shallowest nodes in the search tree first.
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    # initialize the queue with the start state
+    start = problem.get_start_state()
+    queue = util.Queue()
+    queue.push((start, []))
+    visited = set()
+
+    while not queue.isEmpty():
+        state, actions = queue.pop()
+        if problem.is_goal_state(state):  # check if the state is the goal state
+            return actions
+        if state not in visited:
+            visited.add(state)
+            for successor, action, _ in problem.get_successors(state):  # run of the successors of the state
+                queue.push((successor, actions + [action]))
 
 
 def uniform_cost_search(problem):
     """
-    Search the node of least total cost first.
+    Search the node of the least total cost first.
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    # initialize the queue with the start state
+    start = problem.get_start_state()
+    queue = util.PriorityQueue()
+    queue.push(Node(start, []), 0)
+    visited = set()
+
+    while not queue.isEmpty():
+        state, actions = queue.pop().get_state_actions__()
+        if problem.is_goal_state(state):  # check if the state is the goal state
+            return actions
+        if state not in visited:
+            visited.add(state)
+            for successor, action, _ in problem.get_successors(state):  # run of the successors of the state
+                queue.push(Node(successor, actions + [action]), problem.get_cost_of_actions(actions + [action]))
+
 
 
 def null_heuristic(state, problem=None):
@@ -98,8 +137,22 @@ def a_star_search(problem, heuristic=null_heuristic):
     """
     Search the node that has the lowest combined cost and heuristic first.
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    # initialize the queue with the start state
+    start = problem.get_start_state()
+    queue = util.PriorityQueue()
+    queue.push(Node(start, []), heuristic(start, problem))
+    visited = set()
+
+    while not queue.isEmpty():
+        state, actions = queue.pop().get_state_actions__()
+        if problem.is_goal_state(state):  # check if the state is the goal state
+            return actions
+        if state not in visited:
+            visited.add(state)
+            for successor, action, _ in problem.get_successors(state):  # run of the successors of the state
+                queue.push(Node(successor, actions + [action]),
+                           problem.get_cost_of_actions(actions + [action]) + heuristic(successor, problem))
 
 
 # Abbreviations
@@ -107,3 +160,18 @@ bfs = breadth_first_search
 dfs = depth_first_search
 astar = a_star_search
 ucs = uniform_cost_search
+
+
+class Node:
+    def __init__(self, state, actions):
+        self.state = state
+        self.actions = actions
+
+    def get_state__(self):
+        return self.state
+
+    def get_actions__(self):
+        return self.actions
+
+    def get_state_actions__(self):
+        return self.state, self.actions

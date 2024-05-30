@@ -56,7 +56,8 @@ class BlokusFillProblem(SearchProblem):
 class BlokusCornersProblem(SearchProblem):
     def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0)):
         self.expanded = 0
-        "*** YOUR CODE HERE ***"
+        self.board = Board(board_w, board_h, 1, piece_list, starting_point)
+        self.tars = [(0, board_h - 1), (board_w - 1, board_h - 1), (board_w - 1, 0)]
 
     def get_start_state(self):
         """
@@ -65,8 +66,7 @@ class BlokusCornersProblem(SearchProblem):
         return self.board
 
     def is_goal_state(self, state):
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return all([state.get_position(i, j) == 0 for (i, j) in self.tars])
 
     def get_successors(self, state):
         """
@@ -89,8 +89,7 @@ class BlokusCornersProblem(SearchProblem):
         This method returns the total cost of a particular sequence of actions.  The sequence must
         be composed of legal moves
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return sum(map(lambda action: action.piece.get_num_tiles(), actions))
 
 
 def blokus_corners_heuristic(state, problem):
@@ -105,15 +104,19 @@ def blokus_corners_heuristic(state, problem):
     your heuristic is *not* consistent, and probably not admissible!  On the other hand,
     inadmissible or inconsistent heuristics may find optimal solutions, so be careful.
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    if problem.is_goal_state(state):
+        return 0
+    h = state.board_h
+    w = state.board_w
+    captured = [(0, 0)] + [(i, j) for i in range(w) for j in range(h) if (state.get_position(i, j) == 0)]
+    return h + w - max(map(lambda x: x[0], captured)) - max(map(lambda x: x[1], captured))
 
 
 class BlokusCoverProblem(SearchProblem):
     def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0), targets=[(0, 0)]):
         self.targets = targets.copy()
         self.expanded = 0
-        "*** YOUR CODE HERE ***"
+        self.board = Board(board_w, board_h, 1, piece_list, starting_point)
 
     def get_start_state(self):
         """
@@ -122,8 +125,7 @@ class BlokusCoverProblem(SearchProblem):
         return self.board
 
     def is_goal_state(self, state):
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return all([state.get_position(j, i) == 0 for (i, j) in self.targets])
 
     def get_successors(self, state):
         """
@@ -146,10 +148,17 @@ class BlokusCoverProblem(SearchProblem):
         This method returns the total cost of a particular sequence of actions.  The sequence must
         be composed of legal moves
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return sum(map(lambda action: action.piece.get_num_tiles(), actions))
 
 
 def blokus_cover_heuristic(state, problem):
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    if problem.is_goal_state(state):
+        return 0
+    h = state.board_h
+    w = state.board_w
+    captured = [(i, j) for i in range(w) for j in range(h) if (state.get_position(i, j) == 0)]
+    if len(captured) == 0:
+        captured.append((0, 0))
+    x_dists = [min([abs(i - x) for (i, _) in captured] + [w]) for (_, x) in problem.targets]
+    y_dists = [min([abs(j - y) for (_, j) in captured] + [h]) for (y, _) in problem.targets]
+    return max(x_dists + y_dists)
